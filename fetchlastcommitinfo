@@ -1,3 +1,8 @@
+"""
+This Program will assist to fetch data from Atlassian Bitbucket server and print all last commit of each project under each repository with
+project key, repo name, last commit date,  last committer name, last committer email id.
+"""
+
 import json as nehru_js
 import requests as nehru_ns
 import os as nehru_os
