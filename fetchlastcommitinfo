@@ -1,0 +1,42 @@
+import json as nehru_js
+import requests as nehru_ns
+import os as nehru_os
+import datetime as nehru_datetime
+import getpass as nehru_getpass
+
+
+baseurl = "Please put your bitbucket url here"
+
+username = input("Enter Username: ")
+password =  nehru_getpass.getpass("Enter Password : ")
+apiprojectpath = "/rest/api/latest/projects"
+arg1 = "?limit=1000000"
+baseurl_arg1 = baseurl + arg1
+headers = {"Content-type": "application/json"}
+timeout_session = 1000000
+
+with nehru_ns.Session() as session:
+
+    connection = session.request("GET", baseurl_arg1, auth=(username, password), headers=headers, timeout=timeout_session)
+    dumping = nehru_js.loads(connection.text)
+    Format = "%Y-%m-%d %H:%M:%S"
+    
+    for i in dumping:
+        if i == "values":
+            for j in dumping["values"]:
+                newurl = baseurl + "/"  + j["key"] + "/repos/" + arg1
+                repourl = session.request("GET", newurl, auth=(username, password), headers=headers, timeout=timeout_session)
+                loading = nehru_js.loads(repourl.text)
+                
+                try:
+                    for iss in loading["values"]:
+                        newurlrepo = (baseurl + "/"  + j["key"] + "/repos/" + iss["slug"] + "/commits" + arg1)
+                        newrepo_repodate = session.request("GET",newurlrepo, auth=(username, password), headers=headers, timeout=timeout_session)
+                        loading_repo =  nehru_js.loads(newrepo_repodate.text)
+                        storereponame = iss["slug"]
+                        IndingGet = loading_repo["values"][0]["authorTimestamp"]
+                        getrealdate = nehru_datetime.datetime.fromtimestamp(float(IndingGet)/1000)                              
+                        print(j["key"] + ",",storereponame + ",",getrealdate, "," ,loading_repo["values"][0]["author"]["name"], "," , loading_repo["values"][0]["author"]["emailAddress"])
+                        
+                except:
+                    print(j["key"] + ",", iss["slug"], "," ,"Empty Repo:  " )                    
